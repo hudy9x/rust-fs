@@ -1,12 +1,42 @@
+use std::fs::{self, metadata, DirEntry, ReadDir};
 use std::io::{self, Error, Result};
-use std::fs::{self, ReadDir, metadata};
 use std::path::Path;
+use std::ffi::OsString;
 
-fn read_directory(path: &str) -> ReadDir {
+#[warn(dead_code)]
+struct FileInfo {
+    name: OsString,
+    kind: String,
+    path: String,
+}
+
+fn read_directory(path: &str) -> Vec<FileInfo> {
     let new_path = Path::new(path);
     let paths = fs::read_dir(new_path).unwrap();
 
-    paths
+    let mut files: Vec<FileInfo> = vec![];
+
+    for path in paths {
+        let path_unwrap = path.unwrap();
+        let meta = path_unwrap.metadata();
+        let meta_unwrap = meta.unwrap();
+
+        let mut kind = String::from("file");
+
+        if meta_unwrap.is_dir() {
+            kind = String::from("directory");
+        }
+
+        let new_file_info = FileInfo {
+            name: path_unwrap.file_name(),
+            kind,
+            path: String::from("test-directoryu") 
+        };
+
+        files.push(new_file_info);
+    }
+
+    files
 }
 
 fn read_file(path: &str) -> String {
@@ -37,11 +67,19 @@ fn remove_folder(path: &str) {
 }
 
 fn main() {
+    let paths = read_directory("E:\\test");
 
-    // let paths = read_directory("E:\\dotfiles\\.config\\nvim");
+    let mut counter = 0;
+    for path in paths {
+        counter += 1;
+        // println!("Name: {}", path.unwrap().path().display())
+    }
+
+    println!("Leng, {counter}");
+
 
     // for path in paths {
-        // println!("Name: {}", path.unwrap().path().display())
+    // println!("Name: {}", path.unwrap().path().display())
     // }
 
     // let content = read_file("E:\\dotfiles\\.config\\nvim\\init.lua");
@@ -54,6 +92,5 @@ fn main() {
     // create_directory("E:\\test\\guessing_game\\src\\some");
     // remove_file("E:\\test\\guessing_game\\src\\new11.rs")
 
-    remove_folder("E:\\test\\guessing_game\\src\\foo")
-
+    // remove_folder("E:\\test\\guessing_game\\src\\foo")
 }
