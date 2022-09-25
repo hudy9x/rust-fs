@@ -10,8 +10,8 @@ struct FileInfo {
     path: String,
 }
 
-fn read_directory(path: &str) -> Vec<FileInfo> {
-    let new_path = Path::new(path);
+fn read_directory(path: String) -> Vec<FileInfo> {
+    let new_path = Path::new(path as &str);
     let paths = fs::read_dir(new_path).unwrap();
 
     let mut files: Vec<FileInfo> = vec![];
