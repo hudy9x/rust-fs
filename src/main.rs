@@ -1,81 +1,10 @@
-use std::fs::{self, metadata, DirEntry, ReadDir};
-use std::io::{self, Error, Result};
-use std::path::Path;
-use std::ffi::OsString;
-
-#[warn(dead_code)]
-struct FileInfo {
-    name: OsString,
-    kind: String,
-    path: String,
-}
-
-fn read_directory(path: String) -> Vec<FileInfo> {
-    let new_path = Path::new(path as &str);
-    let paths = fs::read_dir(new_path).unwrap();
-
-    let mut files: Vec<FileInfo> = vec![];
-
-    for path in paths {
-        let path_unwrap = path.unwrap();
-        let meta = path_unwrap.metadata();
-        let meta_unwrap = meta.unwrap();
-
-        let mut kind = String::from("file");
-
-        if meta_unwrap.is_dir() {
-            kind = String::from("directory");
-        }
-
-        let new_file_info = FileInfo {
-            name: path_unwrap.file_name(),
-            kind,
-            path: String::from("test-directoryu") 
-        };
-
-        files.push(new_file_info);
-    }
-
-    files
-}
-
-fn read_file(path: &str) -> String {
-    let contents = fs::read_to_string(path).expect("ERROR");
-    contents
-}
-
-// update file and create new file
-fn write_file(path: &str, content: &str) -> Result<()> {
-    let file_path = Path::new(path);
-    fs::write(file_path, content);
-    Ok(())
-}
-
-fn create_directory(path: &str) {
-    let dir_path = Path::new(path);
-    fs::create_dir(dir_path);
-}
-
-fn remove_file(path: &str) {
-    let file_path = Path::new(path);
-    fs::remove_file(file_path);
-}
-
-fn remove_folder(path: &str) {
-    let folder_path = Path::new(path);
-    fs::remove_dir_all(folder_path);
-}
+mod file_controller; 
 
 fn main() {
-    let paths = read_directory("E:\\test");
+    
+    let paths = file_controller::read_directory(String::from("E:\\test"));
 
-    let mut counter = 0;
-    for path in paths {
-        counter += 1;
-        // println!("Name: {}", path.unwrap().path().display())
-    }
-
-    println!("Leng, {counter}");
+    println!("paths: {:?}", paths);
 
 
     // for path in paths {
