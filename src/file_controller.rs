@@ -1,22 +1,31 @@
-
-use std::fs::{self, metadata, DirEntry, ReadDir};
-use std::io::{self, Error, Result};
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
+use std::fs;
 use std::path::Path;
-use std::ffi::OsString;
 
-#[warn(dead_code)]
-#[derive(Debug)]
+// #[warn(dead_code)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct FileInfo {
-    name: OsString,
+    name: String,
     kind: String,
     path: String,
 }
 
-pub fn read_directory(path: String) -> Vec<FileInfo> {
+#[derive(Serialize, Deserialize)]
+pub struct Post {
+    title: String,
+    created: String,
+    link: String,
+    description: String,
+    content: String,
+    author: String,
+}
+
+pub fn read_directory(path: String) -> String {
     let new_path = Path::new(&path as &str);
     let paths = fs::read_dir(new_path).unwrap();
 
-    let mut files: Vec<FileInfo> = vec![];
+    let mut files: Vec<FileInfo> = Vec::new();
 
     for path in paths {
         let path_unwrap = path.unwrap();
@@ -29,16 +38,28 @@ pub fn read_directory(path: String) -> Vec<FileInfo> {
             kind = String::from("directory");
         }
 
+        let filename = match path_unwrap.file_name().into_string() {
+            Ok(str) => str,
+            Err(error) => String::from("ERROR"),
+        };
+
         let new_file_info = FileInfo {
-            name: path_unwrap.file_name(),
+            name: filename,
             kind,
-            path: String::from("test-directoryu") 
+            path: String::from("test-directoryu"),
         };
 
         files.push(new_file_info);
     }
 
-    files
+    let files_str = match serde_json::to_string(&files) {
+        Ok(str) => str,
+        Err(error) => panic!("Problem opening the file: {:?}", error),
+    };
+
+    // println!("file {:?}", files_str);
+
+    files_str
 }
 
 pub fn read_file(path: &str) -> String {
@@ -66,25 +87,4 @@ pub fn remove_file(path: &str) {
 pub fn remove_folder(path: &str) {
     let folder_path = Path::new(path);
     fs::remove_dir_all(folder_path);
-}
-
-fn main() {
-    // let paths = read_directory("E:\\test");
-
-
-    // for path in paths {
-    // println!("Name: {}", path.unwrap().path().display())
-    // }
-
-    // let content = read_file("E:\\dotfiles\\.config\\nvim\\init.lua");
-
-    // println!("content is: {content}");
-
-    // write_file("E:\\test\\guessing_game\\src\\main.rs", "aloooo");
-    // write_file("E:\\test\\guessing_game\\src\\new.rs", "aloooo2");
-
-    // create_directory("E:\\test\\guessing_game\\src\\some");
-    // remove_file("E:\\test\\guessing_game\\src\\new11.rs")
-
-    // remove_folder("E:\\test\\guessing_game\\src\\foo")
 }

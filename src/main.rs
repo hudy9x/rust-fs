@@ -2,7 +2,7 @@ mod file_controller;
 
 fn main() {
     
-    let paths = file_controller::read_directory(String::from("E:\\test"));
+    let paths = file_controller::read_directory(String::from("E:\\test\\rust-gui"));
 
     println!("paths: {:?}", paths);
 
