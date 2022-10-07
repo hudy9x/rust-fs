@@ -21,8 +21,9 @@ pub struct Post {
     author: String,
 }
 
-pub fn read_directory(path: String) -> String {
-    let new_path = Path::new(&path as &str);
+pub fn read_directory(dir_path: &str) -> String {
+    let new_path = Path::new(dir_path);
+    println!("new path {:?}", new_path);
     let paths = fs::read_dir(new_path).unwrap();
 
     let mut files: Vec<FileInfo> = Vec::new();
@@ -43,10 +44,12 @@ pub fn read_directory(path: String) -> String {
             Err(error) => String::from("ERROR"),
         };
 
+        let file_path = dir_path.to_owned() + &filename;
+
         let new_file_info = FileInfo {
             name: filename,
             kind,
-            path: String::from("test-directoryu"),
+            path: file_path,
         };
 
         files.push(new_file_info);
@@ -68,23 +71,30 @@ pub fn read_file(path: &str) -> String {
 }
 
 // update file and create new file
-pub fn write_file(path: &str, content: &str) -> Result<()> {
+pub fn write_file(path: &str, content: &str) -> String {
     let file_path = Path::new(path);
-    fs::write(file_path, content);
+    let result = match fs::write(file_path, content) {
+        Ok(()) => String::from("OK"),
+        Err(_err) => String::from("ERROR")
+    };
+
+    result
+}
+
+pub fn create_directory(path: &str) -> Result<()>{
+    let dir_path = Path::new(path);
+    fs::create_dir(dir_path);
     Ok(())
 }
 
-pub fn create_directory(path: &str) {
-    let dir_path = Path::new(path);
-    fs::create_dir(dir_path);
-}
-
-pub fn remove_file(path: &str) {
+pub fn remove_file(path: &str) -> Result<()> {
     let file_path = Path::new(path);
     fs::remove_file(file_path);
+    Ok(())
 }
 
-pub fn remove_folder(path: &str) {
+pub fn remove_folder(path: &str) -> Result<()>{ 
     let folder_path = Path::new(path);
     fs::remove_dir_all(folder_path);
+    Ok(())
 }
